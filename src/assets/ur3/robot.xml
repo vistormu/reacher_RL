@@ -1,0 +1,79 @@
+<mujoco model="ur3">
+
+    <option>
+        <flag gravity="disable"/>
+    </option>
+    
+    <compiler angle="radian" />
+    <size njmax="500" nconmax="100" />
+    <asset>
+        <mesh name="base" file="meshes/base.stl" />
+        <mesh name="shoulder" file="meshes/shoulder.stl" />
+        <mesh name="upperarm" file="meshes/upperarm.stl" />
+        <mesh name="forearm" file="meshes/forearm.stl" />
+        <mesh name="wrist1" file="meshes/wrist1.stl" />
+        <mesh name="wrist2" file="meshes/wrist2.stl" />
+        <mesh name="wrist3" file="meshes/wrist3.stl" />
+    </asset>
+    <!-- blue: "0.68 0.80 0.82 1.0", white: "1.0 0.97 0.94 1.0", red: "0.81 0.44 0.44 1.0"-->
+    <worldbody>
+        <!-- BASE -->
+        <body name="base_link" pos="0.07 0.13 1.15" quat="0.9238777 -0.3826805 0.0 0.0">
+            <inertial pos="0 0 0" quat="0.5 0.5 -0.5 0.5" mass="2" diaginertia="0.005625 0.00305317 0.00305317" />
+            <geom type="mesh" rgba="0.68 0.80 0.82 1.0" mesh="base" />
+
+            <!-- SHOULDER -->
+            <body name="shoulder_link" pos="0 0 0.1519">
+                <inertial pos="0 0 0" mass="2" diaginertia="0.00809316 0.00809316 0.005625" />
+                <joint name="shoulder_pan_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-6.28319 6.28319" />
+                <geom type="mesh" rgba="1.0 0.97 0.94 1.0" mesh="shoulder" />
+
+                <!-- UPPERARM -->
+                <body name="upper_arm_link" pos="0 0.1198 0" quat="0.707107 0 0.707107 0">
+                    <inertial pos="0 0 0.121825" mass="3.42" diaginertia="0.0217285 0.0217285 0.00961875" />
+                    <joint name="shoulder_lift_joint" pos="0 0 0" axis="0 1 0" limited="true" range="-6.28319 6.28319" />
+                    <geom type="mesh" rgba="1.0 0.97 0.94 1.0" mesh="upperarm" />
+
+                    <!-- FOREARM -->
+                    <body name="forearm_link" pos="0 -0.0925 0.24365">
+                        <inertial pos="0 0 0.106625" mass="1.26" diaginertia="0.00654681 0.00654681 0.00354375" />
+                        <joint name="elbow_joint" pos="0 0 0" axis="0 1 0" limited="true" range="-3.14159 3.14159" />
+                        <geom type="mesh" rgba="1.0 0.97 0.94 1.0" mesh="forearm" />
+
+                        <!-- WRIST 1 -->
+                        <body name="wrist_1_link" pos="0 0 0.21325" quat="0.707107 0 0.707107 0">
+                            <inertial pos="0 0 0" quat="0.5 0.5 -0.5 0.5" mass="0.8" diaginertia="0.00225 0.002085 0.002085" />
+                            <joint name="wrist_1_joint" pos="0 0 0" axis="0 1 0" limited="true" range="-6.28319 6.28319" />
+                            <geom type="mesh" rgba="0.68 0.80 0.82 1.0" mesh="wrist1" />
+
+                            <!-- WRIST 2 -->
+                            <body name="wrist_2_link" pos="0 0.08505 0">
+                                <inertial pos="0 0 0" quat="0.5 0.5 -0.5 0.5" mass="0.8" diaginertia="0.00225 0.002085 0.002085" />
+                                <joint name="wrist_2_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-6.28319 6.28319" />
+                                <geom type="mesh" rgba="0.68 0.80 0.82 1.0" mesh="wrist2" />
+
+                                <!-- WRIST 3 -->
+                                <body name="wrist_3_link" pos="0 0 0.08535">
+                                    <inertial pos="0 0 0" quat="0.5 0.5 -0.5 0.5" mass="0.35" diaginertia="0.000984375 0.000912187 0.000912187" />
+                                    <joint name="wrist_3_joint" pos="0 0 0" axis="0 1 0" limited="true" range="-6.28319 6.28319" />
+                                    <geom type="mesh" rgba="0.81 0.44 0.44 1.0" mesh="wrist3" />
+
+                                    <body name="ee_link" pos="0 0.0819 0" quat="0.707107 0 0 0.707107">
+                                        <inertial pos="-0.01 0 0" mass="0.001" diaginertia="1.66667e-08 1.66667e-08 1.66667e-08" />
+                                        <geom size="0.005 0.005 0.005" pos="-0.01 0 0" type="box" />
+                                    </body>
+                                    <body name="tool0" pos="0 0.0819 0" quat="0.707107 -0.707107 0 0">
+                                        <inertial pos="0 0.0819 0" quat="0.707107 -0.707107 0 0" mass="0" diaginertia="0 0 0" />
+                                    </body>
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+            <!-- <body name="base" pos="0 0 0" quat="1.7949e-09 0 0 -1">
+                <inertial pos="0 0 0" quat="1.7949e-09 0 0 -1" mass="0" diaginertia="0 0 0" />
+            </body> -->
+        </body>
+    </worldbody>
+</mujoco>

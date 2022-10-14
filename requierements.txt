@@ -1,0 +1,11 @@
+numpy
+tensorflow
+tensorflow-gpu
+keras
+tqdm
+gym
+matplotlib
+bgplot
+csv
+pyyaml
+--extra-index-url https://pypi.ngc.nvidia.com
