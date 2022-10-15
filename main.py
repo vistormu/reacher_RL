@@ -1,6 +1,6 @@
 from src import *
 from src.core.entities import ManipulatorData, Point, Axes, Vector
-from src.communication import MockRepository
+from src.communication import MockRepository, MujocoRepository
 
 
 def main():
@@ -9,7 +9,8 @@ def main():
     # Initialization
     graphics: Graphics = Graphics()
     logging: Logging = Logging()
-    repository: MockRepository = MockRepository()
+    # repository: MockRepository = MockRepository()
+    repository: MujocoRepository = MujocoRepository('ur3')
 
     # Initialize manipulator and target
     initial_manipulator_data: ManipulatorData = Manipulator.create('ur3')

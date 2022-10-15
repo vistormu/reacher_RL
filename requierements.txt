@@ -4,8 +4,9 @@ tensorflow-gpu
 keras
 tqdm
 gym
-matplotlib
 bgplot
-csv
+matplotlib==3.5.2
 pyyaml
 --extra-index-url https://pypi.ngc.nvidia.com
+mujoco-py
+autopep8

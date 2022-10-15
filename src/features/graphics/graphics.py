@@ -29,14 +29,14 @@ class Graphics():
 
     def show_initial_configuration(self, manipulator_data: ManipulatorData, target: Point, target_axes: Axes) -> None:
         # Manipulator
-        self.figure.add_oriented_points(manipulator_data.positions,
-                                        manipulator_data.axes_list,
-                                        style='.-', length=0.025)
+        self.figure.add_points(manipulator_data.positions, style='.-')
+        self.figure.add_multiple_axes(manipulator_data.axes_list,
+                                      manipulator_data.positions,
+                                      length=0.025)
 
         # Target
-        self.figure.add_oriented_point(target,
-                                       target_axes,
-                                       color=bgp.Colors.red)
+        self.figure.add_point(target, color=bgp.Colors.red)
+        self.figure.add_axes(target_axes, target)
 
         # Miscellaneous
         self.figure.add_points([MANIPULATOR_ORIGIN, MANIPULATOR_ORIGIN_PROJECTION],
@@ -49,14 +49,14 @@ class Graphics():
 
     def show_current_state(self, manipulator_data: ManipulatorData, target: Point, target_axes: Axes) -> None:
         # Manipulator
-        self.figure.add_oriented_points(manipulator_data.positions,
-                                        manipulator_data.axes_list,
-                                        style='.-', length=0.025)
+        self.figure.add_points(manipulator_data.positions, style='.-')
+        self.figure.add_multiple_axes(manipulator_data.axes_list,
+                                      manipulator_data.positions,
+                                      length=0.025)
 
         # Target
-        self.figure.add_oriented_point(target,
-                                       target_axes,
-                                       color=bgp.Colors.red)
+        self.figure.add_point(target, color=bgp.Colors.red)
+        self.figure.add_axes(target_axes, target)
 
         # Miscellaneous
         self.figure.add_points([MANIPULATOR_ORIGIN, MANIPULATOR_ORIGIN_PROJECTION],

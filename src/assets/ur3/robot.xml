@@ -17,8 +17,16 @@
     </asset>
     <!-- blue: "0.68 0.80 0.82 1.0", white: "1.0 0.97 0.94 1.0", red: "0.81 0.44 0.44 1.0"-->
     <worldbody>
+        <!-- <body name="base" pos="0 0 0" quat="1.7949e-09 0 0 -1">
+            <inertial pos="0 0 0" quat="1.7949e-09 0 0 -1" mass="0" diaginertia="0 0 0" />
+        </body> -->
+
+        <!-- <body name="base" pos="0.07 0.13 1.15" quat="0.9238777 -0.3826805 0.0 0.0">
+            <inertial pos="0 0 0" quat="1.7949e-09 0 0 -1" mass="0" diaginertia="0 0 0" />
+        </body> -->
+
         <!-- BASE -->
-        <body name="base_link" pos="0.07 0.13 1.15" quat="0.9238777 -0.3826805 0.0 0.0">
+        <body name="base_link" pos="-0.07 -0.13 1.15" quat="0.9238777 -0.3826805 0.0 0.0">
             <inertial pos="0 0 0" quat="0.5 0.5 -0.5 0.5" mass="2" diaginertia="0.005625 0.00305317 0.00305317" />
             <geom type="mesh" rgba="0.68 0.80 0.82 1.0" mesh="base" />
 
@@ -71,9 +79,6 @@
                     </body>
                 </body>
             </body>
-            <!-- <body name="base" pos="0 0 0" quat="1.7949e-09 0 0 -1">
-                <inertial pos="0 0 0" quat="1.7949e-09 0 0 -1" mass="0" diaginertia="0 0 0" />
-            </body> -->
         </body>
     </worldbody>
 </mujoco>
