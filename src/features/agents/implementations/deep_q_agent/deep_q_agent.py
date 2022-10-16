@@ -1,52 +1,51 @@
-import collections
 import random
 import numpy as np
-from keras import models, layers
 
-from ..agent_interface import IAgent
+from keras.models import Sequential
+from keras.layers import Dense
+from collections import deque
+
+from ...agent_interface import IAgent
+
+MODEL_PATH = "src/features/agents/implementations/deep_q_agent/model/"
 
 
 class DeepQAgent(IAgent):
 
-    REPLAY_MEMORY_SIZE = 50_000
-    MIN_REPLAY_MEMORY_SIZE = 1000
-    MINIBATCH_SIZE = 64
+    REPLAY_MEMORY_SIZE: int = 50_000
+    MIN_REPLAY_MEMORY_SIZE: int = 1000
+    MINIBATCH_SIZE: int = 64
 
-    UPDATE_TARGET_EVERY = 5
+    UPDATE_TARGET_EVERY: int = 5
 
-    EPSILON_DECAY = 0.99975
-    MIN_EPSILON = 0.001
+    EPSILON_DECAY: float = 0.99975
+    MIN_EPSILON: float = 0.001
 
-    DISCOUNT = 0.99
+    DISCOUNT: float = 0.99
 
-    def __init__(self, size) -> None:
+    def __init__(self, size: tuple[int, int, int]) -> None:
         self.input_size, self.hidden_size, self.output_size = size
 
-        self.model = self._create_model()
-
-        self.target_model = self._create_model()
+        # Models
+        self.model: Sequential = self._create_model()
+        self.target_model: Sequential = self._create_model()
         self.target_model.set_weights(self.model.get_weights())
 
-        self.replay_memory = collections.deque(maxlen=self.REPLAY_MEMORY_SIZE)
-
-        self.target_update_counter = 0
-
-        self.epsilon = 1
+        # Variables
+        self.replay_memory: deque = deque(maxlen=self.REPLAY_MEMORY_SIZE)
+        self.target_update_counter: int = 0
+        self.epsilon: float = 1.0
 
     def get_action(self, state: np.ndarray) -> int:
-
+        action: int = np.random.randint(0, self.output_size)
         if np.random.random() > self.epsilon:
             prediction = self.model(np.array([state]))
             action = np.argmax(prediction)
-        else:
-            action = np.random.randint(0, self.output_size)
 
         return action
 
-    def train(self, state, new_state, action, reward, done) -> None:
-
-        self._update_memory(state, new_state, action, reward, done)
-
+    def train(self, observation: np.ndarray, new_observation: np.ndarray, action: int, reward: int, done: bool) -> None:
+        self._update_memory(observation, new_observation, action, reward, done)
         self._train_model()
 
         # Update target network counter every episode
@@ -63,21 +62,24 @@ class DeepQAgent(IAgent):
             self.epsilon *= self.EPSILON_DECAY
             self.epsilon = max(self.MIN_EPSILON, self.epsilon)
 
-    def _create_model(self):
-        model = models.Sequential()
+    def save_model(self):
+        self.model.save(MODEL_PATH)
+
+    def _create_model(self) -> Sequential:
+        model: Sequential = Sequential()
 
         # Input layer and first hidden layer
-        model.add(layers.Dense(self.hidden_size,
-                               input_dim=self.input_size,
-                               activation='relu'))
+        model.add(Dense(self.hidden_size,
+                        input_dim=self.input_size,
+                        activation='relu'))
 
         # Hidden layer
-        model.add(layers.Dense(self.hidden_size,
-                               activation='relu'))
+        model.add(Dense(self.hidden_size,
+                        activation='relu'))
 
         # Output layer
-        model.add(layers.Dense(self.output_size,
-                               activation='linear'))
+        model.add(Dense(self.output_size,
+                        activation='linear'))
 
         # Compiler
         model.compile(loss='mse',
@@ -86,12 +88,12 @@ class DeepQAgent(IAgent):
 
         return model
 
-    def _update_memory(self, state, new_state, action, reward, done) -> None:
-        transition = (state, new_state, action, reward, done)
+    def _update_memory(self, observation: np.ndarray, new_observation: np.ndarray, action: int, reward: int, done: bool) -> None:
+        transition: tuple[np.ndarray, np.ndarray, int, int, bool] = (
+            observation, new_observation, action, reward, done)
         self.replay_memory.append(transition)
 
     def _train_model(self) -> None:
-
         # Start training only if certain number of samples is already saved
         if len(self.replay_memory) < self.MIN_REPLAY_MEMORY_SIZE:
             return
@@ -99,10 +101,11 @@ class DeepQAgent(IAgent):
         # Get minibatch from memory
         minibatch = random.sample(self.replay_memory, self.MINIBATCH_SIZE)
 
-        states, new_states, actions, rewards, dones = zip(*minibatch)
+        observations, new_observations, actions, rewards, dones = zip(
+            *minibatch)
 
-        current_qs = self.model(np.array(states))
-        future_qs = self.model(np.array(new_states))
+        current_qs = self.model(np.array(observations))
+        future_qs = self.model(np.array(new_observations))
 
         current_qs = np.array(current_qs)
         future_qs = np.array(future_qs)
@@ -110,7 +113,7 @@ class DeepQAgent(IAgent):
         X = []
         y = []
 
-        for index, (state, new_state, action, reward, done) in enumerate(minibatch):
+        for index, (observation, new_state, action, reward, done) in enumerate(minibatch):
 
             if not done:
                 max_future_q = np.max(future_qs[index])
@@ -124,7 +127,7 @@ class DeepQAgent(IAgent):
             current_q[action] = new_q
 
             # And append to our training data
-            X.append(state)
+            X.append(observation)
             y.append(current_q)
 
         # Fit on all samples as one batch
