@@ -86,7 +86,7 @@ class Observer(IObserver):
     def is_done(self, virtual_point: Point, target: Point) -> bool:
         return self._is_equal(virtual_point, target)
 
-    def _is_equal(self, virtual_point: Point, target: Point, factor: float = 2.0) -> bool:
+    def _is_equal(self, virtual_point: Point, target: Point, factor: float = 1.0) -> bool:
         return np.all(np.abs(np.array(virtual_point - target)) <= (self.size*factor))
 
     def _normalize_point(self, point: Point) -> Point:

@@ -65,6 +65,9 @@ class DeepQAgent(IAgent):
     def save_model(self):
         self.model.save(MODEL_PATH)
 
+    def load_model(self):
+        self.model.save(MODEL_PATH)
+
     def _create_model(self) -> Sequential:
         model: Sequential = Sequential()
 

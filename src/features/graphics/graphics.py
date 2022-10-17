@@ -67,11 +67,5 @@ class Graphics():
         self.figure.set_title('current state')
         self.figure.update(30)
 
-    def show_training(self, virtual_point: Point, target: Point) -> None:
-        self.figure.add_point(virtual_point, color=bgp.Colors.red)
-        self.figure.add_point(target, color=bgp.Colors.green)
-
-        self.figure.update(30)
-
     def close(self) -> None:
         self.figure.close()
