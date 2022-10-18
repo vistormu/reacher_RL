@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.core.entities import ManipulatorData
+from ..entities import ManipulatorData
 
 
 class ManipulatorRepository(ABC):

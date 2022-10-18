@@ -1,47 +1,33 @@
-import csv
 from pathlib import Path
-from src.core.entities import Point
+
+from ..core.entities import Point
+from ..manipulator.entities import ManipulatorData
+
+from .use_cases import ManipulatorLogging, PathLogging, Results
 
 LOGGING_PATH = 'src/features/logging/results/'
-ANGLES_FILENAME = 'angles.csv'
-PATH_FILENAME = 'position.csv'
-TARGET_PATH_FILENAME = 'target.csv'
+MANIPULATOR_LOGGING_PATH: str = LOGGING_PATH + 'manipulator/'
+PATH_LOGGING_PATH: str = LOGGING_PATH + 'path/'
 
 
 class Logging:
     def __init__(self) -> None:
-        Path(LOGGING_PATH).mkdir(parents=True, exist_ok=True)
+        # Paths
+        Path(MANIPULATOR_LOGGING_PATH).mkdir(parents=True, exist_ok=True)
+        Path(PATH_LOGGING_PATH).mkdir(parents=True, exist_ok=True)
 
-        self.angles_filename: str = LOGGING_PATH + 'angles.csv'
-        self._unlink_file(self.angles_filename)
+        # Use cases
+        self.manipulator_logging: ManipulatorLogging = ManipulatorLogging(MANIPULATOR_LOGGING_PATH)
+        self.path_logging: PathLogging = PathLogging(PATH_LOGGING_PATH)
 
-        self.position_filename: str = LOGGING_PATH + 'position.csv'
-        self._unlink_file(self.position_filename)
+    def log_manipulator_data(self, manipulator_data: ManipulatorData) -> None:
+        self.manipulator_logging.angles_to_csv(manipulator_data.angles)
+        self.manipulator_logging.positions_to_csv(manipulator_data.positions)
 
-        self.target_filename: str = LOGGING_PATH + 'target.csv'
-        self._unlink_file(self.target_filename)
+    def log_path(self, target: Point) -> None:
+        self.path_logging.path_to_csv(target)
 
-    @staticmethod
-    def _unlink_file(filename: str):
-        if Path(filename).is_file():
-            Path(filename).unlink()
-
-    def angles_to_csv(self, angles: list[float], digits: int = 2) -> None:
-        angles_to_log: list[float] = [round(angle, digits) for angle in angles]
-        with open(self.angles_filename, 'a+') as file:
-            writer = csv.writer(file)
-            writer.writerow(angles_to_log)
-
-    def position_to_csv(self, position: Point, digits: int = 2) -> None:
-        position_to_log: list[float] = [
-            round(value, digits) for value in position]
-        with open(self.position_filename, 'a+') as file:
-            writer = csv.writer(file)
-            writer.writerow(position_to_log)
-
-    def target_to_csv(self, target: Point, digits: int = 2) -> None:
-        target_to_log: list[float] = [
-            round(value, digits) for value in target]
-        with open(self.target_filename, 'a+') as file:
-            writer = csv.writer(file)
-            writer.writerow(target_to_log)
+    def show_results(self):
+        Results.show_path_plot(self.manipulator_logging.positions_filename,
+                               self.path_logging.path_filename)
+        Results.show_angles_plot(self.manipulator_logging.angles_filename)

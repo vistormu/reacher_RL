@@ -1,69 +1,62 @@
+import argparse
+
 from src import *
-from src.core.entities import ManipulatorData, Point, Axes, Vector
-from src.communication import MockRepository, MujocoRepository
+from src.features.core.entities import Point
 
 
-def main():
+def main(args):
     Logger.info('program initialized')
 
-    # Initialization
-    graphics: Graphics = Graphics()
+    # 1. Train model
+    training: bool = False
+    if args['train']:
+        training = True
+
+    if training:
+        training: Training = Training()
+        training.train()
+
+    # 2. Get path from agent
+    # WIP
+    path: list[Point] = PathGetter.mock_movement()
+
+    # 3. Choose a good manipulator orientation
+    # WIP
+    # Entities
+    manipulator: Manipulator = Manipulator('ur3', 'mock')
     logging: Logging = Logging()
-    repository: MockRepository = MockRepository()
-    # repository: MujocoRepository = MujocoRepository('ur3')
 
-    # Initialize manipulator and target
-    initial_manipulator_data: ManipulatorData = Manipulator.create('ur3')
-
-    initial_target: Point = Point(0.5, 0.15, 1.1)
-    initial_target_axes: Axes = Axes(Vector(-1.0, 0.0, 0.0),
-                                     Vector(0.0, 0.0, -1.0),
-                                     Vector(0.0, -1.0, 0.0))
-
-    # Initialize manipulator with repository
-    repository.send_manipulator_data(initial_manipulator_data)
-    manipulator_data = repository.get_manipulator_data()
-
-    Logger.info('manipulator initialized')
-
-    # Plot initial configuration
-    graphics.show_initial_configuration(manipulator_data,
-                                        initial_target,
-                                        initial_target_axes)
-
-    for i in range(220):
-        # Get new target
-        target: Point = Movement.linear_y(i, height=0.8, distance=0.3)
-        target_axes: Axes = manipulator_data.axes_list[-1]
+    # 4. Get the angles path
+    for point in path:
+        # Move manipulator
+        manipulator.move_to(point)
 
         # Render
-        graphics.show_current_state(manipulator_data,
-                                    target,
-                                    target_axes)
+        manipulator.render(30)
 
-        # Perform Inverse Kinematics
-        manipulator_data = Kinematics.fabrik_vanilla(manipulator_data,
-                                                     target,
-                                                     target_axes,
-                                                     iterations=20,
-                                                     update_axes=True)
+        # Log results
+        logging.log_manipulator_data(manipulator.manipulator_data)
+        logging.log_path(point)
 
-        # Send manipulator data
-        repository.send_manipulator_data(manipulator_data)
-        manipulator_data = repository.get_manipulator_data()
-
-        # Log data
-        logging.angles_to_csv(manipulator_data.angles)
-        logging.position_to_csv(manipulator_data.positions[-1])
-        logging.target_to_csv(target)
-
-    # Close graphics
-    graphics.close()
+    # Closing
+    manipulator.close()
 
     # Plot results
-    Results.show_angles_plot()
-    Results.show_path_plot()
+    logging.show_results()
+
+    # 5. Send data to the real manipulator
+    # WIP
+    answer: str = input('send data? [y/n]: ')
+    if answer == 'y':
+        Logger.warning('you f**** up')
 
 
 if __name__ == '__main__':
-    main()
+    # Argument parsing
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-t',
+                        '--train',
+                        action='store_true',
+                        help='call to train the model')
+
+    main(vars(parser.parse_args()))

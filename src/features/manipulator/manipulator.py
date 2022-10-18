@@ -1,43 +1,47 @@
-import yaml
-from src.core.entities import ManipulatorData, Point, Vector, Axes
+from .entities import ManipulatorData
+from ..core.entities import Point
+from .use_cases import ManipulatorDataParser, Graphics, InverseKinematics
+from .communication import get_repository
+from .repository import ManipulatorRepository
 
 ASSETS_PATH: str = "src/assets/"
 
 
 class Manipulator:
-    @staticmethod
-    def create(robot: str) -> ManipulatorData:
-        path: str = f'{ASSETS_PATH}{robot}/dh.yaml'
+    def __init__(self, robot: str, repository_id: str) -> None:
+        # Manipulator data
+        self.robot: str = robot
+        self.manipulator_data: ManipulatorData = ManipulatorDataParser.get(robot)
 
-        with open(path, "r") as file:
-            try:
-                dh_table = yaml.safe_load(file)
-            except yaml.YAMLError as exception:
-                print(exception)
+        # Target
+        self.target: Point = None
 
-        name: str = robot
-        a_values: list[float] = dh_table[robot]['a']
-        d_values: list[float] = dh_table[robot]['d']
-        alpha_values: list[float] = dh_table[robot]['alpha']
-        degrees_of_freedom: int = len(a_values)
-        angles: list[float] = [0.0]*degrees_of_freedom
-        positions: list[Point] = [Point(0.0, 0.0, 0.0)]*(degrees_of_freedom+1)
-        x_vectors: list[Vector] = [
-            Vector(0.0, 0.0, 0.0)]*(degrees_of_freedom+1)
-        y_vectors: list[Vector] = [
-            Vector(0.0, 0.0, 0.0)]*(degrees_of_freedom+1)
-        z_vectors: list[Vector] = [
-            Vector(0.0, 0.0, 0.0)]*(degrees_of_freedom+1)
-        axes_list: list[Axes] = [
-            Axes(*axes) for axes in zip(x_vectors, y_vectors, z_vectors)]
+        # Use cases
+        self.graphics: Graphics = Graphics()
 
-        manipulator_data: ManipulatorData = ManipulatorData(name=name,
-                                                            a_values=a_values,
-                                                            d_values=d_values,
-                                                            alpha_values=alpha_values,
-                                                            degrees_of_freedom=degrees_of_freedom,
-                                                            positions=positions,
-                                                            angles=angles,
-                                                            axes_list=axes_list)
+        # Repository
+        self.repository: ManipulatorRepository = get_repository(repository_id)
+        self.repository.send_manipulator_data(self.manipulator_data)
+        self.manipulator_data = self.repository.get_manipulator_data()
 
-        return manipulator_data
+    def move_to(self, target: Point) -> None:
+        # Update target
+        self.target = target
+
+        # Apply inverse kinematics
+        self.manipulator_data = InverseKinematics.fabrik_vanilla(self.manipulator_data,
+                                                                 target,
+                                                                 self.manipulator_data.axes_list[-1],
+                                                                 update_axes=True)
+
+        # Send manipulator data (Subject to change)
+        self.repository.send_manipulator_data(self.manipulator_data)
+        self.manipulator_data = self.repository.get_manipulator_data()
+
+    def render(self, fps: int) -> None:
+        self.graphics.render(self.manipulator_data,
+                             self.target)
+        self.graphics.update(fps)
+
+    def close(self):
+        self.graphics.close()
