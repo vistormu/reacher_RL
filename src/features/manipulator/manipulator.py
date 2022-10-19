@@ -1,5 +1,8 @@
+from ..logging import Logging
+
 from .entities import ManipulatorData
 from ..core.entities import Point
+
 from .use_cases import ManipulatorDataParser, Graphics, InverseKinematics
 from .communication import get_repository
 from .repository import ManipulatorRepository
@@ -24,7 +27,25 @@ class Manipulator:
         self.repository.send_manipulator_data(self.manipulator_data)
         self.manipulator_data = self.repository.get_manipulator_data()
 
-    def move_to(self, target: Point) -> None:
+        # Logging
+        self.logging: Logging = Logging()
+
+    def follow_path(self, path: list[Point]) -> None:
+        for point in path:
+            self._move_to(point)
+
+            self.graphics.render(self.manipulator_data,
+                                 self.target,
+                                 path)
+            self.graphics.update(10)
+
+            self.logging.log_manipulator_data(self.manipulator_data.angles,
+                                              self.manipulator_data.positions)
+            self.logging.log_path(point)
+
+        self.graphics.close()
+
+    def _move_to(self, target: Point) -> None:
         # Update target
         self.target = target
 
@@ -38,10 +59,5 @@ class Manipulator:
         self.repository.send_manipulator_data(self.manipulator_data)
         self.manipulator_data = self.repository.get_manipulator_data()
 
-    def render(self, fps: int) -> None:
-        self.graphics.render(self.manipulator_data,
-                             self.target)
-        self.graphics.update(fps)
-
-    def close(self):
-        self.graphics.close()
+    def send(self) -> None:
+        return

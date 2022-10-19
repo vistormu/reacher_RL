@@ -68,8 +68,8 @@ class Observer(IObserver):
         # Penalty for not reducing distance
         distance: float = bgp.ops.distance_between_two_points(
             virtual_point, target)
-        if distance > self.previous_distance:
-            reward -= self.MOVE_PENALTY
+        if distance >= self.previous_distance:
+            reward -= self.MOVE_PENALTY*2
 
         self.previous_distance = distance
 

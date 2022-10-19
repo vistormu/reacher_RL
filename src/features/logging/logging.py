@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from ..core.entities import Point
-from ..manipulator.entities import ManipulatorData
 
 from .use_cases import ManipulatorLogging, PathLogging, Results
 
@@ -20,9 +19,9 @@ class Logging:
         self.manipulator_logging: ManipulatorLogging = ManipulatorLogging(MANIPULATOR_LOGGING_PATH)
         self.path_logging: PathLogging = PathLogging(PATH_LOGGING_PATH)
 
-    def log_manipulator_data(self, manipulator_data: ManipulatorData) -> None:
-        self.manipulator_logging.angles_to_csv(manipulator_data.angles)
-        self.manipulator_logging.positions_to_csv(manipulator_data.positions)
+    def log_manipulator_data(self, angles: list[float], positions: list[Point]) -> None:
+        self.manipulator_logging.angles_to_csv(angles)
+        self.manipulator_logging.positions_to_csv(positions)
 
     def log_path(self, target: Point) -> None:
         self.path_logging.path_to_csv(target)

@@ -1,13 +1,14 @@
 import random
 import numpy as np
 
+from keras import models
 from keras.models import Sequential
 from keras.layers import Dense
 from collections import deque
 
 from ...agent_interface import IAgent
 
-MODEL_PATH = "src/features/training/agents/implementations/deep_q_agent/model/"
+MODEL_PATH = "src/features/path_planner/agents/models/deep_q_model.h5"
 
 
 class DeepQAgent(IAgent):
@@ -66,7 +67,7 @@ class DeepQAgent(IAgent):
         self.model.save(MODEL_PATH)
 
     def load_model(self):
-        self.model.save(MODEL_PATH)
+        self.model = models.load_model(MODEL_PATH)
 
     def _create_model(self) -> Sequential:
         model: Sequential = Sequential()
