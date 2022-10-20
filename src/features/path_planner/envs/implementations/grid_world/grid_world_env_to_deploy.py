@@ -8,9 +8,9 @@ class GridWorldEnvToDeploy:
     def __init__(self, size: float) -> None:
         # Env variables
         self.size: float = size
-        self.limits: list[tuple[float, float, float]] = [(0.3, 0.5),
-                                                         (0.3, 0.5),
-                                                         (1.0, 1.3)]
+        self.limits: list[tuple[float, float, float]] = [(0.0, 0.6),
+                                                         (0.0, 0.6),
+                                                         (0.7, 1.5)]
 
         # Entities
         self.target: Point = None

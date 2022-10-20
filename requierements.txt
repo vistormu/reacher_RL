@@ -10,3 +10,4 @@ pyyaml
 --extra-index-url https://pypi.ngc.nvidia.com
 mujoco-py
 autopep8
+scipy

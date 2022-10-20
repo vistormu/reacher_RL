@@ -27,23 +27,25 @@ class Graphics():
         self.figure.disable('ticks', 'axes', 'walls')
         self.figure.set_background_color(bgp.Colors.white)
 
-    def render(self, manipulator_data: ManipulatorData, target: Point, path: list[Point]) -> None:
+    def render(self, manipulator_data: ManipulatorData, virtual_point: Point, target: Point, path: list[Point]) -> None:
         # Manipulator
         self.figure.add_points(manipulator_data.positions, style='.-')
         self.figure.add_multiple_axes(manipulator_data.axes_list,
                                       manipulator_data.positions,
                                       length=0.025)
 
+        # Virtual point
+        self.figure.add_point(virtual_point, color=bgp.Colors.green)
+
         # Target
-        self.figure.add_point(target, color=bgp.Colors.green)
+        self.figure.add_point(target, color=bgp.Colors.red)
 
         # Path
-        self.figure.add_points(path, style='--', color=bgp.Colors.gray, linewidth=0.7)
-        self.figure.add_point(path[-1], color=bgp.Colors.red)
+        self.figure.add_points(path, style='--', color=bgp.Colors.gray, linewidth=0.5)
 
         # Miscellaneous
         self.figure.add_points([MANIPULATOR_ORIGIN, MANIPULATOR_ORIGIN_PROJECTION],
-                               style='.--', color=bgp.Colors.gray)
+                               style='.--', color=bgp.Colors.gray, linewidth=0.3)
         self.figure.add_axes(SOF_AXES, position=ORIGIN)
 
     def update(self, fps: int):

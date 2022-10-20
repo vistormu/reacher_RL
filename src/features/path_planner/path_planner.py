@@ -1,5 +1,6 @@
 import numpy as np
 from tqdm import tqdm
+from scipy.signal import savgol_filter
 
 from ...core import Logger
 from ..core.entities import Point
@@ -92,7 +93,7 @@ class PathPlanner:
 
     def get_path(self, virtual_point: Point, target: Point):
         # Env and agent
-        env = get_env(self.env_id + '_to_deploy', size=0.025)
+        env = get_env(self.env_id + '_to_deploy', size=0.01)
         agent = get_agent('trained_' + self.agent_id)
 
         # Constants
@@ -125,6 +126,14 @@ class PathPlanner:
 
     @staticmethod
     def _smooth_path(path: list[Point]) -> list[Point]:
-        smooth_path: list[Point] = path
+        path_x: list[float] = [point.x for point in path]
+        path_y: list[float] = [point.y for point in path]
+        path_z: list[float] = [point.z for point in path]
+
+        new_x: np.ndarray = savgol_filter(path_x, int(len(path_x)*0.9), 3)
+        new_y: np.ndarray = savgol_filter(path_y, int(len(path_y)*0.9), 3)
+        new_z: np.ndarray = savgol_filter(path_z, int(len(path_z)*0.9), 3)
+
+        smooth_path: list[Point] = [Point(x, y, z) for x, y, z in zip(new_x, new_y, new_z)]
 
         return smooth_path

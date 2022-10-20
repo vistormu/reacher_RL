@@ -16,9 +16,6 @@ class Manipulator:
         self.robot: str = robot
         self.manipulator_data: ManipulatorData = ManipulatorDataParser.get(robot)
 
-        # Target
-        self.target: Point = None
-
         # Use cases
         self.graphics: Graphics = Graphics()
 
@@ -30,25 +27,23 @@ class Manipulator:
         # Logging
         self.logging: Logging = Logging()
 
-    def follow_path(self, path: list[Point]) -> None:
-        for point in path:
-            self._move_to(point)
+    def follow_path(self, path: list[Point], target: Point) -> None:
+        for virtual_point in path:
+            self._move_to(virtual_point)
 
             self.graphics.render(self.manipulator_data,
-                                 self.target,
+                                 virtual_point,
+                                 target,
                                  path)
             self.graphics.update(10)
 
             self.logging.log_manipulator_data(self.manipulator_data.angles,
                                               self.manipulator_data.positions)
-            self.logging.log_path(point)
+            self.logging.log_path(virtual_point)
 
         self.graphics.close()
 
     def _move_to(self, target: Point) -> None:
-        # Update target
-        self.target = target
-
         # Apply inverse kinematics
         self.manipulator_data = InverseKinematics.fabrik_vanilla(self.manipulator_data,
                                                                  target,
