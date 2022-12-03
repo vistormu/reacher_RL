@@ -1,3 +1,3 @@
-from .inverse_kinematics.inverse_kinematics import InverseKinematics
+from .farm import Farm
 from .graphics import Graphics
-from .manipulator_data_parser import ManipulatorDataParser
+from .parameters_manager import ParametersManager

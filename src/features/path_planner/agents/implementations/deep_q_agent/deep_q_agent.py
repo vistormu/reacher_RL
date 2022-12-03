@@ -108,8 +108,8 @@ class DeepQAgent(IAgent):
         observations, new_observations, actions, rewards, dones = zip(
             *minibatch)
 
-        current_qs = self.model(np.array(observations))
-        future_qs = self.model(np.array(new_observations))
+        current_qs = self.target_model(np.array(observations))
+        future_qs = self.target_model(np.array(new_observations))
 
         current_qs = np.array(current_qs)
         future_qs = np.array(future_qs)
