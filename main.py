@@ -14,6 +14,11 @@ def main(args):
     if args['train']:
         path_planner.train()
 
+    # INITIAL_CONFIGURATION: np.ndarray = np.array([[1.0, 0.0, 0.0, 0.07],
+    #                                           [0.0, 0.7071, 0.7071, 0.13],
+    #                                           [0.0, -0.7071, 0.7071, 1.15],
+    #                                           [0.0, 0.0, 0.0, 1.0]])
+
     # Initialize manipulator
     base: OrientedPoint = OrientedPoint(Point(0.0, 0.0, 0.0), Axes(Vector(1.0, 0.0, 0.0), Vector(0.0, 1.0, 0.0), Vector(0.0, 0.0, 1.0)))
     manipulator: Manipulator = Manipulator('ur3', 'mock')
@@ -23,16 +28,17 @@ def main(args):
     logging: Logging = Logging()
 
     # 4. Get target
-    target: Point = Target.get()
+    target: Target = Target()
+    target_position: Point = target.get()
 
     # 5. Calculate path
     Logger.info('getting path')
-    path: list[Point] = path_planner.get_path(virtual_point=manipulator.data.systems[-1].position,
-                                              target=target)
+    path: list[Point] = path_planner.get_path(manipulator.data.systems[-1].position,
+                                              target_position)
 
     # 5. Get the angles path
     Logger.info('getting angles path')
-    manipulator.follow_path(path, target)
+    manipulator.follow_path(path, target_position)
 
     # Plot results
     logging.show_results()

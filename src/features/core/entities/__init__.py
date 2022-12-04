@@ -1,1 +1,2 @@
-from bgplot.entities import Axes, Line, OrientedPoint, Plane, Point, Vector
+from bgplot.entities import Axes, Line, Plane, Point, Vector
+from .oriented_point import OrientedPoint

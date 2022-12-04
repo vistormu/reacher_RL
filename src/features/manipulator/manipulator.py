@@ -30,19 +30,28 @@ class Manipulator:
         self.logging: Logging = Logging()
 
     def init(self, base: OrientedPoint, angles: list[float]):
-        # Get DH-parameters and check if the given angles are correct
+        # Initialize DH Parameters
         dh_parameters: DHParameters = ParametersManager.get_dh_parameters(self.robot)
+
+        # The angles must be the same length as the DoFs
         assert len(angles) == len(dh_parameters.a)
 
-        angles.insert(0, 0.0)  # TMP
+        # Initialize angles
+        angles.insert(0, 0.0)
+
+        # Extend the DH Parameters to include the base
         extended_dh_parameters: DHParameters = ParametersManager.extend_dh_parameters(dh_parameters, base)
+
+        # Initialize the IK Parameters
         ik_parameters: IKParameters = ParametersManager.get_ik_parameters(extended_dh_parameters)
-        # systems: list[OrientedPoint] = Kinematics.forward(extended_dh_parameters, angles)
+
+        # Initialize the systems
+        systems: list[OrientedPoint] = []
+
         self.data = ManipulatorData(extended_dh_parameters, ik_parameters, systems, angles)
 
         # TMP
-        self.repository.send_manipulator_data(self.data)
-        self.data = self.repository.get_manipulator_data()
+        self._send()
 
     def follow_path(self, path: list[Point], target: Point) -> None:
         for virtual_point in path:
@@ -56,7 +65,7 @@ class Manipulator:
             self.graphics.update(10)
 
             self.logging.log_manipulator_data(self.data.angles,
-                                              self.data.positions)
+                                              [system.position for system in self.data.systems])
             self.logging.log_path(virtual_point)
 
         self.graphics.close()

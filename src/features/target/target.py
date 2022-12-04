@@ -1,9 +1,12 @@
 from ..core.entities import Point
 
+from .repository import TargetRepository
+from .communication import MockTargetRepository
+
 
 class Target:
-    @staticmethod
-    def get():
-        target: Point = Point(0.5, 0.2, 1.3)
+    def __init__(self) -> None:
+        self.repository: TargetRepository = MockTargetRepository()
 
-        return target
+    def get(self) -> Point:
+        return self.repository.get()

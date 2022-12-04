@@ -1,2 +1,2 @@
-from .mock_repository.mock_repository import MockRepository
+from .mock_manipulator_repository import MockManipulatorRepository
 from .mujoco_repository import MujocoRepository

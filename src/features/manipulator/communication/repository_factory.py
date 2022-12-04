@@ -1,11 +1,11 @@
-from .implementations import MockRepository, MujocoRepository
+from .implementations import MockManipulatorRepository, MujocoRepository
 
 from ..repository import ManipulatorRepository
 
 
 def get_repository(id: str, *args, **kwargs) -> ManipulatorRepository:
     if id == 'mock':
-        return MockRepository()
+        return MockManipulatorRepository()
     if id == 'mujoco':
         return MujocoRepository(*args, **kwargs)
 
