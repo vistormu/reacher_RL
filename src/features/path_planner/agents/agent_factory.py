@@ -1,11 +1,16 @@
 from .implementations import DeepQAgent, TrainedDeepQAgent
-from .agent_interface import IAgent
+from .interfaces import IAgent, ITrainedAgent
 
 
 def get_agent(agent_id: str, *args, **kwargs) -> IAgent:
     if agent_id == 'deep_q_agent':
         return DeepQAgent(*args, **kwargs)
-    elif agent_id == 'trained_deep_q_agent':
+
+    raise NameError('agent id not found')
+
+
+def get_trained_agent(id: str) -> ITrainedAgent:
+    if id == 'deep_q_agent':
         return TrainedDeepQAgent()
 
     raise NameError('agent id not found')

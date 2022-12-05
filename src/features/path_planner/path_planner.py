@@ -4,8 +4,8 @@ from scipy.signal import savgol_filter
 
 from ...core import Logger
 from ..core.entities import Point
-from .agents import get_agent
-from .envs import get_env
+from .agents import get_agent, get_trained_agent
+from .envs import get_env, get_env_to_deploy
 
 
 class PathPlanner:
@@ -13,20 +13,7 @@ class PathPlanner:
         self.env_id: str = env_id
         self.agent_id: str = agent_id
 
-    @staticmethod
-    def mock_path(step: float = 1.0, height: float = 1.10, distance: float = 0.5) -> list[Point]:
-        path: list[Point] = []
-
-        for i in range(220):
-            x: float = distance
-            y: float = np.sin(i*step/180.0*np.pi)*0.15 + 0.15
-            z: float = height
-
-            path.append(Point(x, y, z))
-
-        return path
-
-    def train(self):
+    def train(self, episodes: int, max_steps: int = 200, render: bool = False):
         # Agent and env
         env = get_env(self.env_id, size=0.025)
         agent = get_agent(self.agent_id, size=(env.observation_space_size,
@@ -39,32 +26,26 @@ class PathPlanner:
         except:
             pass
 
-        # Training constants
-        EPISODES: int = 100
-        MAX_STEPS: int = 200
-        SHOW_AFTER: int = 95
-
         # Variables
         times_completed: int = 0
 
         # Train model
         Logger.info('training model')
-        for episode in tqdm(range(1, EPISODES+1)):
+        for episode in tqdm(range(1, episodes+1)):
             # Varibable resetting
             done: bool = False
             episode_step: int = 0
-            observation = env.reset()
-
-            if episode == SHOW_AFTER:
-                input('press any key to continue...')
+            observation, _ = env.reset()
 
             while not done:
                 # Check max steps in episode
-                if episode_step >= MAX_STEPS:
+                if episode_step >= max_steps:
                     break
 
                 # Render
-                if episode >= SHOW_AFTER:
+                if render and episode == episodes-10:
+                    input('press any key ot continue...')
+                if render and episode >= episodes-10:
                     env.render()
 
                 # Get action from policy
@@ -89,26 +70,22 @@ class PathPlanner:
         agent.save_model()
         Logger.info('model saved')
 
-        Logger.info(f'times completed: {times_completed}/{EPISODES} ({times_completed*100//EPISODES}%)')
+        Logger.info(f'times completed: {times_completed}/{episodes} ({times_completed*100//episodes}%)')
 
-    def get_path(self, virtual_point: Point, target: Point):
+    def get_path(self, virtual_point: Point, target: Point, size: float = 0.01, max_steps: int = 200):
         # Env and agent
-        env = get_env(self.env_id + '_to_deploy', size=0.01)
-        agent = get_agent('trained_' + self.agent_id)
-
-        # Constants
-        MAX_STEPS: int = 200
+        env = get_env_to_deploy(self.env_id, size)
+        agent = get_trained_agent(self.agent_id)
 
         # Initialize variables
         path: list[Point] = [virtual_point]
         done: bool = False
-        observation: np.ndarray = env.init(virtual_point,
-                                           target)
+        observation: np.ndarray = env.init(virtual_point, target)  # type:ignore
         episode_step: int = 0
 
         while not done:
             # Check max steps in episode
-            if episode_step >= MAX_STEPS:
+            if episode_step >= max_steps:
                 break
 
             # Get action from policy
@@ -137,3 +114,16 @@ class PathPlanner:
         smooth_path: list[Point] = [Point(x, y, z) for x, y, z in zip(new_x, new_y, new_z)]
 
         return smooth_path
+
+    @staticmethod
+    def mock_path(step: float = 1.0, height: float = 1.10, distance: float = 0.5) -> list[Point]:
+        path: list[Point] = []
+
+        for i in range(220):
+            x: float = distance
+            y: float = np.sin(i*step/180.0*np.pi)*0.15 + 0.15
+            z: float = height
+
+            path.append(Point(x, y, z))
+
+        return path

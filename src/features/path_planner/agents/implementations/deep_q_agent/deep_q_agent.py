@@ -6,7 +6,7 @@ from keras.models import Sequential
 from keras.layers import Dense
 from collections import deque
 
-from ...agent_interface import IAgent
+from ...interfaces import IAgent
 
 MODEL_PATH = "src/features/path_planner/agents/models/deep_q_model.h5"
 
@@ -41,7 +41,7 @@ class DeepQAgent(IAgent):
         action: int = np.random.randint(0, self.output_size)
         if np.random.random() > self.epsilon:
             prediction = self.model(np.array([state]))
-            action = np.argmax(prediction)
+            action = np.argmax(prediction)  # type: ignore
 
         return action
 
@@ -67,7 +67,7 @@ class DeepQAgent(IAgent):
         self.model.save(MODEL_PATH)
 
     def load_model(self):
-        self.model = models.load_model(MODEL_PATH)
+        self.model = models.load_model(MODEL_PATH)  # type: ignore
 
     def _create_model(self) -> Sequential:
         model: Sequential = Sequential()
@@ -138,5 +138,5 @@ class DeepQAgent(IAgent):
         self.model.fit(np.array(X),
                        np.array(y),
                        batch_size=self.MINIBATCH_SIZE,
-                       verbose=0,
+                       verbose=0,  # type: ignore
                        shuffle=False)

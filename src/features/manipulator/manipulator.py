@@ -26,9 +26,6 @@ class Manipulator:
         # Repository
         self.repository: ManipulatorRepository = get_repository(repository_id)
 
-        # Logging
-        self.logging: Logging = Logging()
-
     def init(self, base: OrientedPoint, angles: list[float]):
         # Initialize DH Parameters
         dh_parameters: DHParameters = ParametersManager.get_dh_parameters(self.robot)
@@ -63,10 +60,6 @@ class Manipulator:
                                  target,
                                  path)
             self.graphics.update(10)
-
-            self.logging.log_manipulator_data(self.data.angles,
-                                              [system.position for system in self.data.systems])
-            self.logging.log_path(virtual_point)
 
         self.graphics.close()
 

@@ -2,25 +2,26 @@ import numpy as np
 
 from .....core.entities import Point, Vector
 from .use_cases import Observer, Translator
+from ...interfaces import IEnvToDeploy
 
 
-class GridWorldEnvToDeploy:
+class GridWorldEnvToDeploy(IEnvToDeploy):
     def __init__(self, size: float) -> None:
         # Env variables
         self.size: float = size
-        self.limits: list[tuple[float, float, float]] = [(0.0, 0.6),
-                                                         (0.0, 0.6),
-                                                         (0.7, 1.5)]
+        self.limits: list[tuple[float, float]] = [(0.0, 0.6),
+                                                  (0.0, 0.6),
+                                                  (0.7, 1.5)]
 
         # Entities
-        self.target: Point = None
-        self.virtual_point: Point = None
+        self.target: Point = None  # type: ignore
+        self.virtual_point: Point = None  # type: ignore
 
         # Observer and translator
         self.observer: Observer = Observer(self.size, self.limits)
         self.translator: Translator = Translator()
 
-    def init(self, virtual_point: Point, target: Point, return_info: bool = False):
+    def init(self, virtual_point: Point, target: Point) -> tuple[np.ndarray, dict]:
         # Initialize entities
         self.target = target
         self.virtual_point = virtual_point
@@ -30,7 +31,7 @@ class GridWorldEnvToDeploy:
         info: dict = self.observer.get_info(self.virtual_point,
                                             self.target)
 
-        return (observation, info) if return_info else observation
+        return (observation, info)
 
     def step(self, action: int) -> tuple[np.ndarray, bool, dict]:
         # Move the virtual point from the action

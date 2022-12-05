@@ -17,8 +17,10 @@ class IObserver(ABC):
     def get_reward(self) -> int:
         pass
 
+    @abstractmethod
     def is_done(self) -> bool:
         pass
 
+    @abstractmethod
     def get_info(self) -> dict:
         pass

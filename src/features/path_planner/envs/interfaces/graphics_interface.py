@@ -10,8 +10,10 @@ class IGraphics(ABC):
     def render(self) -> None:
         pass
 
+    @abstractmethod
     def update(self, fps: int) -> None:
         pass
 
+    @abstractmethod
     def close(self) -> None:
         pass

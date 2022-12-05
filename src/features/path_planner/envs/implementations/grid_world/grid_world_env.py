@@ -1,14 +1,13 @@
-from gym import spaces
 import numpy as np
 
 from ...interfaces import IEnv
 from .use_cases import Observer, Translator, Graphics
 from .....core.entities import Point, Vector
 
+RENDER_FPS: int = 30
+
 
 class GridWorldEnv(IEnv):
-    metadata = {"render_modes": ["human"], "render_fps": 30}
-
     def __init__(self, size: float) -> None:
         # Env variables
         self.size: float = size
@@ -29,28 +28,22 @@ class GridWorldEnv(IEnv):
 
         # Action space
         self.action_space_size: int = self.translator.action_space_size
-        self.action_space: spaces.Discrete = spaces.Discrete(
-            self.action_space_size)
 
         # Observation space
         self.observation_space_size: int = self.observer.observation_space_size
-        self.observation_space: spaces.Box = spaces.Box(low=self.observer.low,
-                                                        high=self.observer.high)
 
         # Other variables
         self.window: bool = False
         self.episode_step: int = 0
 
-    def reset(self, seed: int = None, return_info: bool = False, options=None):
-        super().reset(seed=seed)
-
+    def reset(self) -> tuple[np.ndarray, dict]:
         # Reset episode step
         self.episode_step = 0
 
         # Set target to a new position
-        target_x: float = self.np_random.uniform(*self.limits[0])
-        target_y: float = self.np_random.uniform(*self.limits[1])
-        target_z: float = self.np_random.uniform(*self.limits[2])
+        target_x: float = np.random.uniform(*self.limits[0])
+        target_y: float = np.random.uniform(*self.limits[1])
+        target_z: float = np.random.uniform(*self.limits[2])
 
         self.target = Point(target_x, target_y, target_z)
 
@@ -59,7 +52,7 @@ class GridWorldEnv(IEnv):
                                                                 self.target)
         info: dict = self.observer.get_info(self.virtual_point, self.target)
 
-        return (observation, info) if return_info else observation
+        return (observation, info)
 
     def step(self, action: int) -> tuple[np.ndarray, int, bool, dict]:
         # Increase episode step
@@ -84,16 +77,15 @@ class GridWorldEnv(IEnv):
 
         return observation, reward, done, info
 
-    def render(self, mode: str = 'human') -> None:
-        if not self.window and mode == 'human':
+    def render(self) -> None:
+        if not self.window:
             self.graphics.init(self.limits)
             self.window = True
 
-        if mode == 'human':
-            self.graphics.render(self.virtual_point,
-                                 self.target)
-            self.graphics.set_title(f'{self.episode_step}')
-            self.graphics.update(self.metadata['render_fps'])
+        self.graphics.render(self.virtual_point,
+                             self.target)
+        self.graphics.set_title(f'{self.episode_step}')
+        self.graphics.update(RENDER_FPS)
 
     def close(self):
         self.graphics.close()
