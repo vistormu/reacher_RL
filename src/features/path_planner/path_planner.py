@@ -13,7 +13,7 @@ class PathPlanner:
         self.env_id: str = env_id
         self.agent_id: str = agent_id
 
-    def train(self, episodes: int, max_steps: int = 200, render: bool = False):
+    def train(self, episodes: int, max_steps: int = 200, render: bool = False) -> None:
         # Agent and env
         env = get_env(self.env_id, size=0.025)
         agent = get_agent(self.agent_id, size=(env.observation_space_size,
@@ -72,7 +72,7 @@ class PathPlanner:
 
         Logger.info(f'times completed: {times_completed}/{episodes} ({times_completed*100//episodes}%)')
 
-    def get_path(self, virtual_point: Point, target: Point, size: float = 0.01, max_steps: int = 200):
+    def get_path(self, virtual_point: Point, target: Point, size: float = 0.01, max_steps: int = 200) -> list[Point]:
         # Env and agent
         env = get_env_to_deploy(self.env_id, size)
         agent = get_trained_agent(self.agent_id)
@@ -80,7 +80,7 @@ class PathPlanner:
         # Initialize variables
         path: list[Point] = [virtual_point]
         done: bool = False
-        observation: np.ndarray = env.init(virtual_point, target)  # type:ignore
+        observation, _ = env.init(virtual_point, target)  # type:ignore
         episode_step: int = 0
 
         while not done:

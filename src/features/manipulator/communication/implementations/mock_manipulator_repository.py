@@ -1,4 +1,5 @@
 import numpy as np
+from copy import deepcopy
 
 from ...repository import ManipulatorRepository
 
@@ -22,7 +23,7 @@ class MockManipulatorRepository(ManipulatorRepository):
         
         # Get absolute systems
         system: np.ndarray = np.eye(4)
-        for i in range(len(systems)):
+        for i in range(len(a)):
             step_matrix: np.ndarray = np.array([[np.cos(theta[i]), -np.cos(alpha[i])*np.sin(theta[i]), np.sin(alpha[i])*np.sin(theta[i]), a[i]*np.cos(theta[i])],
                                                 [np.sin(theta[i]), np.cos(alpha[i])*np.cos(theta[i]), -np.sin(alpha[i])*np.cos(theta[i]), a[i]*np.sin(theta[i])],
                                                 [0, np.sin(alpha[i]), np.cos(alpha[i]), d[i]],
@@ -30,8 +31,9 @@ class MockManipulatorRepository(ManipulatorRepository):
             system = system @ step_matrix
             
             systems.append(OrientedPoint.from_htm(system))
-            
-        self.manipulator_data.systems = systems
+                        
+        manipulator_data.systems = systems
+        self.manipulator_data = deepcopy(manipulator_data)
         
     
     def get_manipulator_data(self) -> ManipulatorData:

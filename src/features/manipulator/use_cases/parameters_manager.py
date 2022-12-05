@@ -5,13 +5,13 @@ from copy import deepcopy
 from ..entities import DHParameters, IKParameters
 from ...core.entities import OrientedPoint
 
-ASSETS_PATH: str = 'src/assets/'
+ASSETS_PATH: str = 'src/features/manipulator/assets/'
 
 
 class ParametersManager:
     @staticmethod
     def get_dh_parameters(robot: str) -> DHParameters:
-        path: str = f'{ASSETS_PATH}{robot}.yaml'
+        path: str = f'{ASSETS_PATH}{robot}/dh.yaml'
 
         with open(path, "r") as file:
             dh_table: dict = dict()

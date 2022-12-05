@@ -1,7 +1,5 @@
 import bgplot as bgp
 
-from ..logging import Logging
-
 from .entities import ManipulatorData, DHParameters, IKParameters
 from ..core.entities import Point, OrientedPoint
 
@@ -9,7 +7,6 @@ from .use_cases import ParametersManager, Graphics, Farm
 from .communication import get_repository
 from .repository import ManipulatorRepository
 
-ASSETS_PATH: str = "src/assets/"
 TOLERANCE: float = 0.005
 MAX_ITERATIONS: int = 20
 
