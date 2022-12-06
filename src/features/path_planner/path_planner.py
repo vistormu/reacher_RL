@@ -13,11 +13,11 @@ class PathPlanner:
         self.env_id: str = env_id
         self.agent_id: str = agent_id
 
-    def train(self, episodes: int, max_steps: int = 200, render: bool = False) -> None:
+    def train(self, episodes: int, max_steps: int = 200, render: bool = False, **kwargs) -> None:
         # Agent and env
-        env = get_env(self.env_id, size=0.025)
+        env = get_env(self.env_id, **kwargs)
         agent = get_agent(self.agent_id, size=(env.observation_space_size,
-                                               64,
+                                               16,
                                                env.action_space_size))
 
         try:
@@ -37,14 +37,15 @@ class PathPlanner:
             episode_step: int = 0
             observation, _ = env.reset()
 
+            if render and episode == episodes-10:
+                input('press any key ot continue...')
+
             while not done:
                 # Check max steps in episode
                 if episode_step >= max_steps:
                     break
 
                 # Render
-                if render and episode == episodes-10:
-                    input('press any key ot continue...')
                 if render and episode >= episodes-10:
                     env.render()
 
@@ -66,7 +67,7 @@ class PathPlanner:
 
             agent.decay()
 
-        env.close()
+        # env.close()
         agent.save_model()
         Logger.info('model saved')
 
@@ -92,13 +93,13 @@ class PathPlanner:
             action: int = agent.get_action(observation)
 
             # Step on the environment dynamics
-            new_observation, done, info = env.step(action)
+            observation, done, info = env.step(action)
 
             # Update variables
-            observation = new_observation
             episode_step += 1
             path.append(info['virtual_point'])
 
+        return path
         return self._smooth_path(path)
 
     @staticmethod

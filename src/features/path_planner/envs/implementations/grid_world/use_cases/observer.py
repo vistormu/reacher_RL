@@ -7,7 +7,7 @@ from ....interfaces import IObserver
 
 class Observer(IObserver):
     MOVE_PENALTY = 1
-    TARGET_REACHED_REWARD = 10
+    TARGET_REACHED_REWARD = 100
 
     def __init__(self, size: float, limits: list[tuple[float, float]]) -> None:
         # Observation space
@@ -66,8 +66,7 @@ class Observer(IObserver):
         reward -= self.MOVE_PENALTY
 
         # Penalty for not reducing distance
-        distance: float = bgp.ops.distance_between_two_points(
-            virtual_point, target)
+        distance: float = bgp.ops.distance_between_two_points(virtual_point, target)
         if distance >= self.previous_distance:
             reward -= self.MOVE_PENALTY*2
 
@@ -87,15 +86,12 @@ class Observer(IObserver):
         return self._is_equal(virtual_point, target)
 
     def _is_equal(self, virtual_point: Point, target: Point, factor: float = 1.0) -> bool:
-        return np.all(np.abs(np.array(virtual_point - target)) <= (self.size*factor))
+        return bool(np.all(np.abs(np.array(virtual_point - target)) <= (self.size*factor)))
 
     def _normalize_point(self, point: Point) -> Point:
-        x: float = self._normalize_interval(
-            self.limits[0][0], self.limits[0][1], point.x)
-        y: float = self._normalize_interval(
-            self.limits[1][0], self.limits[1][1], point.y)
-        z: float = self._normalize_interval(
-            self.limits[2][0], self.limits[2][1], point.z)
+        x: float = self._normalize_interval(self.limits[0][0], self.limits[0][1], point.x)
+        y: float = self._normalize_interval(self.limits[1][0], self.limits[1][1], point.y)
+        z: float = self._normalize_interval(self.limits[2][0], self.limits[2][1], point.z)
 
         return Point(x, y, z)
 

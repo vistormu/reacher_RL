@@ -80,6 +80,10 @@ class DeepQAgent(IAgent):
         # Hidden layer
         model.add(Dense(self.hidden_size,
                         activation='relu'))
+        model.add(Dense(self.hidden_size,
+                        activation='relu'))
+        model.add(Dense(self.hidden_size,
+                        activation='relu'))
 
         # Output layer
         model.add(Dense(self.output_size,
@@ -93,8 +97,7 @@ class DeepQAgent(IAgent):
         return model
 
     def _update_memory(self, observation: np.ndarray, new_observation: np.ndarray, action: int, reward: int, done: bool) -> None:
-        transition: tuple[np.ndarray, np.ndarray, int, int, bool] = (
-            observation, new_observation, action, reward, done)
+        transition: tuple[np.ndarray, np.ndarray, int, int, bool] = (observation, new_observation, action, reward, done)
         self.replay_memory.append(transition)
 
     def _train_model(self) -> None:
@@ -105,8 +108,7 @@ class DeepQAgent(IAgent):
         # Get minibatch from memory
         minibatch = random.sample(self.replay_memory, self.MINIBATCH_SIZE)
 
-        observations, new_observations, actions, rewards, dones = zip(
-            *minibatch)
+        observations, new_observations, actions, rewards, dones = zip(*minibatch)
 
         current_qs = self.target_model(np.array(observations))
         future_qs = self.target_model(np.array(new_observations))

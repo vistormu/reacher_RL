@@ -4,16 +4,16 @@ from ...interfaces import IEnv
 from .use_cases import Observer, Translator, Graphics
 from .....core.entities import Point, Vector
 
-RENDER_FPS: int = 30
+RENDER_FPS: int = 120
 
 
 class GridWorldEnv(IEnv):
     def __init__(self, size: float) -> None:
         # Env variables
         self.size: float = size
-        self.limits: list[tuple[float, float]] = [(0.3, 0.5),
-                                                  (0.3, 0.5),
-                                                  (1.0, 1.3)]
+        self.limits: list[tuple[float, float]] = [(-1.0, 1.0),
+                                                  (-1.0, 1.0),
+                                                  (-1.0, 1.0)]
 
         # Entities
         self.target: Point = Point(0.0, 0.0, 0.0)

@@ -27,7 +27,7 @@ class Farm:
 
         new_manipulator_data = deepcopy(manipulator_data)
         new_manipulator_data.systems = forward_systems
-        new_manipulator_data.angles = new_angles
+        new_manipulator_data.angles[1:] = new_angles
 
         return new_manipulator_data
 
