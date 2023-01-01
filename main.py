@@ -1,6 +1,8 @@
 import argparse
 import numpy as np
 
+from typing import Optional
+
 from src import *
 from src.features.core.entities import Point, OrientedPoint, Axes, Vector
 
@@ -9,19 +11,17 @@ def main(args):
     Logger.info('program initialized')
 
     # Initialize path planner
-    path_planner: PathPlanner = PathPlanner('grid_world', 'deep_q_agent')
+    path_planner: PathPlanner = PathPlanner()
     # 1. Train model
     if args['train']:
-        size_list: list[float] = [0.2, 0.15, 0.1, 0.075, 0.05, 0.04, 0.03, 0.025, 0.02, 0.015, 0.01]
-        for size in size_list:
-            path_planner.train(episodes=200, size=size)
+        path_planner.train()
 
     # Initialize manipulator
     # base: OrientedPoint = OrientedPoint(Point(0.07, 0.13, 1.15), Axes(Vector(1.0, 0.0, 0.0), Vector(0.0, 0.7071, -0.7071), Vector(0.0, 0.7071, 0.7071)))
     base: OrientedPoint = OrientedPoint(Point(0.0, 0.0, 0.0), Axes(Vector(1.0, 0.0, 0.0), Vector(0.0, 1.0, 0.0), Vector(0.0, 0.0, 1.0)))
     manipulator: Manipulator = Manipulator('ur3', 'mock')
     manipulator.init(base, angles=[np.pi, 0.0, 0.0, 0.0, 0.0, 0.0])
-    manipulator.data.ik_parameters.base_to = 3  # TMP
+    manipulator.data.ik_parameters.base_to = 3
 
     # 4. Get target
     target: Target = Target()
@@ -29,7 +29,12 @@ def main(args):
 
     # 5. Calculate path
     Logger.info('getting path')
-    path: list[Point] = path_planner.get_path(manipulator.data.systems[-1].position, target_position)
+    end_effector: Point = manipulator.data.systems[-1].position
+    path: Optional[list[Point]] = path_planner.get_path(end_effector, target_position)
+    while path is None:
+        Logger.warning('path not found')
+        path: Optional[list[Point]] = path_planner.get_path(end_effector, target_position)
+
     # path: list[Point] = path_planner.mock_path(step=2, height=0.1, distance=0.5)
 
     # 5. Get the angles path
