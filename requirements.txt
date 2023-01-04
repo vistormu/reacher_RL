@@ -1,13 +1,14 @@
 numpy
 tensorflow
-tensorflow-gpu
+# tensorflow-gpu
 keras
 tqdm
 gym
 bgplot
-matplotlib==3.5.2
+# matplotlib==3.5.2
 pyyaml
---extra-index-url https://pypi.ngc.nvidia.com
-mujoco-py
+# mujoco-py
 autopep8
 scipy
+pandas
+perlin-noise

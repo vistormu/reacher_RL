@@ -52,7 +52,8 @@ class DynamicGridworld(IEnv):
             y = np.random.randint(0, self.size)
             z = np.random.randint(0, self.size)
 
-        self.target = Point(x, y, z)
+        self.moving_point = Point(x, y, z)
+        # self.target = Point(x, y, z)
 
         # Place moving point
         if self.map is not None:
@@ -63,11 +64,13 @@ class DynamicGridworld(IEnv):
             y = np.random.randint(0, self.size)
             z = np.random.randint(0, self.size)
 
-        self.moving_point = Point(x, y, z)
+        # self.moving_point = Point(x, y, z)
+        self.target = Point(x, y, z)
 
         # Get observation and info
-        observation: np.ndarray = self.observer.get_observation(self.moving_point, self.target, self.map)
-        info: dict = self.observer.get_info(self.moving_point, self.target, self.map)
+        self.observer.update(self.moving_point, self.target, self.map)
+        observation: np.ndarray = self.observer.get_observation()
+        info: dict = self.observer.get_info()
 
         return (observation, info)
 
@@ -79,11 +82,12 @@ class DynamicGridworld(IEnv):
         self.moving_point = Point(*np.clip(next_position, [0]*3, [self.size-1]*3))
 
         # Get observation, reward, terminated, truncated and info
-        observation: np.ndarray = self.observer.get_observation(self.moving_point, self.target, self.map)
-        reward: float = self.observer.get_reward(self.moving_point, self.target, self.map)
-        terminated: bool = self.observer.is_terminated(self.moving_point, self.target, self.map)
-        truncated: bool = self.observer.is_truncated(self.moving_point, self.target, self.map)
-        info: dict = self.observer.get_info(self.moving_point, self.target, self.map)
+        self.observer.update(self.moving_point, self.target, self.map)
+        observation: np.ndarray = self.observer.get_observation()
+        reward: float = self.observer.get_reward()
+        terminated: bool = self.observer.is_terminated()
+        truncated: bool = self.observer.is_truncated()
+        info: dict = self.observer.get_info()
 
         return (observation, reward, terminated, truncated, info)
 

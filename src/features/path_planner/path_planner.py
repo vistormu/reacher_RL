@@ -10,7 +10,7 @@ from ..core.entities import Point
 from .agent import DQN, TrainedDQN
 from .env import DynamicGridworld, DynamicGridworldToDeploy
 
-LOGGING_PATH: str = 'src/features/path_planner/data/'
+LOGGING_PATH: str = 'src/features/logging/data/training/'
 
 
 class PathPlanner:
@@ -142,13 +142,10 @@ class PathPlanner:
         agent.save_model(filename)
         Logger.info('model saved')
 
-    def get_path(self, moving_point: Point, target: Point, size: int = 50, max_steps: int = 200) -> Optional[list[Point]]:
+    def get_path(self, moving_point: Point, target: Point, map: Optional[np.ndarray] = None, size: int = 50, max_steps: int = 200, render: bool = False) -> Optional[list[Point]]:
         # Env and agent
-        env = DynamicGridworldToDeploy(size)
+        env: DynamicGridworldToDeploy = DynamicGridworldToDeploy(size)
         agent: TrainedDQN = TrainedDQN(f'obs_{size}')
-
-        # TODO: mapping del point de input al entorno, y del mapa a occupancy grid
-        # TODO: log data
 
         # Initialize variables
         episode_step: int = 0
@@ -159,9 +156,13 @@ class PathPlanner:
 
         path: list[Point] = [moving_point]
 
-        observation, _ = env.init(moving_point, target, None)
+        observation, _ = env.init(moving_point, target, map)
 
         for step in range(max_steps):
+            # Render
+            if render:
+                env.render()
+
             # Get action from policy
             action: int = agent.get_action(observation)
 
@@ -170,7 +171,7 @@ class PathPlanner:
 
             # Update variables
             episode_step += 1
-            path.append(info['moving_point'])
+            path.append(path[-1] + info['next_position'])
 
             # Termination condition
             if terminated or truncated:
@@ -179,8 +180,7 @@ class PathPlanner:
             if step == max_steps-1:
                 not_finalized = True
 
-        return None if truncated or not_finalized else path
-        return self._smooth_path(path)
+        return None if truncated or not_finalized else self._smooth_path(path)
 
     @staticmethod
     def _smooth_path(path: list[Point]) -> list[Point]:

@@ -40,6 +40,8 @@ class ParametersManager:
             a_0: float = base.position.x/np.cos(theta_0)
             a_0_bis: float = base.position.y/np.sin(theta_0)
 
+            assert abs(a_0 - a_0_bis) < 0.01
+
         # Insert values
         extended_dh_parameters.a.insert(0, a_0)
         extended_dh_parameters.d.insert(0, d_0)

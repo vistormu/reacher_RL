@@ -47,30 +47,35 @@ class Manipulator:
         # TMP
         self._send()
 
-    def follow_path(self, path: list[Point], target: Point) -> None:
-        for virtual_point in path:
-            self._move_to(virtual_point)
+    def follow_path(self, path: list[Point], target: Point, render: bool = False) -> list[list[float]]:
+        angles_path: list[list[float]] = []
+        for point in path:
+            # Get angles and send them
+            angles: list[float] = self._inverse_kinematics(point)
             self._send()
 
-            self.graphics.render(self.data,
-                                 virtual_point,
-                                 target,
-                                 path)
-            self.graphics.update(10)
+            # Render
+            if render:
+                self.graphics.render(self.data, point, target, path)
+                self.graphics.update(10)
+
+            angles_path.append(angles)
 
         self.graphics.close()
 
-    def _move_to(self, target: Point) -> None:
+        return angles_path
+
+    def _inverse_kinematics(self, target: Point) -> list[float]:
         distance: float = bgp.ops.distance_between_two_points(target, self.data.systems[-1].position)
-        iterations: int = 0
-        while distance > TOLERANCE:
-            if iterations == MAX_ITERATIONS:
+        for iteration in range(MAX_ITERATIONS):
+            # Termination condition
+            if distance <= TOLERANCE:
                 break
 
             self.data = Farm.iterate(self.data, OrientedPoint(target, self.data.systems[-1].axes))
-
             distance = bgp.ops.distance_between_two_points(target, self.data.systems[-1].position)
-            iterations += 1
+
+        return self.data.angles
 
     def _send(self) -> None:
         self.repository.send_manipulator_data(self.data)

@@ -20,40 +20,39 @@ class Observer(IObserver):
         self.previous_distance: int = 0
         self.previous_distance_vector: Point = Point(0, 0, 0)
 
-    def get_observation(self, moving_point: Point, target: Point, map: Optional[OccupancyGrid]) -> np.ndarray:
-        distance_to_target: Point = target - moving_point
-        if map is not None:
-            danger_index: float = self._get_danger_index(moving_point, map)
+        # Observer variables
+        self.moving_point: Point = Point(0, 0, 0)
+        self.target: Point = Point(0, 0, 0)
+        self.map: Optional[OccupancyGrid] = None
+        self.next_direction: Point = Point(0, 0, 0)
+
+    def update(self, moving_point: Point, target: Point, map: Optional[OccupancyGrid]) -> None:
+        self.moving_point = moving_point
+        self.target = target
+        self.map = map
+
+    def get_observation(self) -> np.ndarray:
+        distance_to_target: Point = self.target - self.moving_point
+        if self.map is not None:
+            danger_index: float = self._get_danger_index(self.moving_point, self.map)
         else:
-            danger_index: float = moving_point.z/self.size
+            danger_index: float = self.moving_point.z/self.size
 
         return np.array([
-            # target.x/self.size,
-            # target.y/self.size,
-            # target.z/self.size,
-            # moving_point.x/self.size,
-            # moving_point.y/self.size,
-            # moving_point.z/self.size,
             distance_to_target.x/self.size,
             distance_to_target.y/self.size,
             distance_to_target.z/self.size,
             danger_index,
         ])
 
-    def get_reward(self, moving_point: Point, target: Point, map: Optional[OccupancyGrid]) -> float:
+    def get_reward(self) -> float:
         reward: float = 0.0
 
         # Penalty for moving
         reward += self.MOVE_PENALTY
 
         # Penalty for increasing the distance to the target
-        # distance: int = np.linalg.norm(target-moving_point).astype(int)
-        # if distance >= self.previous_distance:
-        #     reward += self.DISTANCING_PENALTY
-
-        # self.previous_distance = distance
-
-        distance_vector: Point = Point(*np.abs(target-moving_point))
+        distance_vector: Point = Point(*np.abs(self.target-self.moving_point))
         reduced_in_x: bool = True if distance_vector.x < self.previous_distance_vector.x else False
         reduced_in_y: bool = True if distance_vector.y < self.previous_distance_vector.y else False
         reduced_in_z: bool = True if distance_vector.z < self.previous_distance_vector.z else False
@@ -64,28 +63,28 @@ class Observer(IObserver):
         self.previous_distance_vector = distance_vector
 
         # Penalty for colliding
-        if map is not None:
-            if self._is_collision(moving_point, map):
+        if self.map is not None:
+            if self._is_collision(self.moving_point, self.map):
                 reward += self.COLLISION_PENALTY
 
-        if self._is_wall_collision(moving_point):
+        if self._is_wall_collision(self.moving_point):
             reward += self.COLLISION_PENALTY
 
         # Reward for reaching the target
-        if moving_point == target:
+        if self.moving_point == self.target:
             reward += self.TARGET_REACHED_REWARD
 
         return reward
 
-    def get_info(self, moving_point: Point, target: Point, map: Optional[OccupancyGrid]) -> dict:
+    def get_info(self) -> dict:
         return {}
 
-    def is_terminated(self, moving_point: Point, target: Point, map: Optional[OccupancyGrid]) -> bool:
-        return moving_point == target
+    def is_terminated(self) -> bool:
+        return self.moving_point == self.target
 
-    def is_truncated(self, moving_point: Point, target: Point, map: Optional[OccupancyGrid]) -> bool:
-        if map is not None:
-            return self._is_collision(moving_point, map)
+    def is_truncated(self) -> bool:
+        if self.map is not None:
+            return self._is_collision(self.moving_point, self.map)
         else:
             return False
 

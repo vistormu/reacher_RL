@@ -5,7 +5,7 @@ from typing import Optional
 from matplotlib import cm
 from matplotlib.colors import ListedColormap, Colormap
 from bgplot.entities import Point as BgpPoint
-from bgplot.entities import Line
+from bgplot.entities import Line, Vector, Axes
 
 from ..interfaces import IGraphics
 from ..entities import OccupancyGrid, Point
@@ -61,6 +61,9 @@ class Graphics(IGraphics):
         # Line
         line: Line = Line.from_two_points(bgp_moving_point, bgp_target)
         self.figure.add_line(line, style='--', color=bgp.Colors.gray, linewidth=0.2)
+
+        # Axes
+        self.figure.add_axes(Axes(Vector(1.0, 0.0, 0.0), Vector(0.0, 1.0, 0.0), Vector(0.0, 0.0, 1.0)), length=0.05)
 
     def update(self, fps: int) -> None:
         self.figure.update(fps)
