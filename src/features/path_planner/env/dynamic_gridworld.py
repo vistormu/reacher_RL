@@ -43,6 +43,8 @@ class DynamicGridworld(IEnv):
         if self.obstacles_enabled:
             self.map = OccupancyGrid(self.size, seed)
 
+        random_number: int = np.random.randint(0, 2)
+
         # Place target
         if self.map is not None:
             x, y = self.map.get_max_index()
@@ -52,8 +54,10 @@ class DynamicGridworld(IEnv):
             y = np.random.randint(0, self.size)
             z = np.random.randint(0, self.size)
 
-        self.moving_point = Point(x, y, z)
-        # self.target = Point(x, y, z)
+        if random_number:
+            self.moving_point = Point(x, y, z)
+        else:
+            self.target = Point(x, y, z)
 
         # Place moving point
         if self.map is not None:
@@ -64,8 +68,10 @@ class DynamicGridworld(IEnv):
             y = np.random.randint(0, self.size)
             z = np.random.randint(0, self.size)
 
-        # self.moving_point = Point(x, y, z)
-        self.target = Point(x, y, z)
+        if random_number:
+            self.target = Point(x, y, z)
+        else:
+            self.moving_point = Point(x, y, z)
 
         # Get observation and info
         self.observer.update(self.moving_point, self.target, self.map)

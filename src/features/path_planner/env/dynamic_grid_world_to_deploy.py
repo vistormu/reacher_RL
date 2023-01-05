@@ -42,9 +42,6 @@ class DynamicGridworldToDeploy:
         z_target: int = 0 if distance_vector.z < 0 else int(abs(distance_vector.z)/grid_size)
         self.target = Point(x_target, y_target, z_target)
 
-        print('TARGET:', bgp_target, self.target)
-        print('MOVING_POINT:', bgp_moving_point, self.moving_point)
-
         # Init occupancy grid
         if map is not None:
             self.map = OccupancyGrid(self.size, seed=0)
@@ -73,6 +70,10 @@ class DynamicGridworldToDeploy:
         truncated: bool = self.observer.is_truncated()
         info: dict = self.observer.get_info()
         info['next_position'] = bgp_next_position
+
+        # TMP
+        # if np.linalg.norm(self.moving_point-self.target, ord=1) < 5:
+        #     terminated = True
 
         return (observation, terminated, truncated, info)
 

@@ -23,7 +23,7 @@ def main(args):
     base: OrientedPoint = OrientedPoint(Point(0.07, 0.13, 1.15), Axes(Vector(1.0, 0.0, 0.0), Vector(0.0, 0.7071, -0.7071), Vector(0.0, 0.7071, 0.7071)))
     # base: OrientedPoint = OrientedPoint(Point(0.0, 0.0, 0.0), Axes(Vector(1.0, 0.0, 0.0), Vector(0.0, 1.0, 0.0), Vector(0.0, 0.0, 1.0)))
     manipulator: Manipulator = Manipulator('ur3', 'mock')
-    manipulator.init(base, angles=[np.pi/2, 0.0, 0.0, 0.0, 0.0, 0.0])
+    manipulator.init(base, angles=[-np.pi/2, np.pi/4, 0.0, -np.pi/2, np.pi, 0.0])
     manipulator.data.ik_parameters.base_to = 3
 
     # 4. Get target
@@ -33,7 +33,7 @@ def main(args):
     # 5. Calculate path
     Logger.info('getting path')
     end_effector: Point = manipulator.data.systems[-1].position
-    path: Optional[list[Point]] = path_planner.get_path(end_effector, target_position, render=False)
+    path: Optional[list[Point]] = path_planner.get_path(end_effector, target_position)
     while path is None:
         Logger.warning('path not found')
         path: Optional[list[Point]] = path_planner.get_path(end_effector, target_position)
