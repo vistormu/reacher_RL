@@ -30,7 +30,7 @@ class Graphics(IGraphics):
         new_colors[0, :] = transparent_color  # type:ignore
         new_colors[1:, :] = white*np.array(new_colors[1:, :])  # type:ignore
 
-        new_colors[:, -1] = 0.2  # type:ignore
+        # new_colors[:, -1] = 0.2  # type:ignore
 
         new_colormap = ListedColormap(new_colors)  # type:ignore
 

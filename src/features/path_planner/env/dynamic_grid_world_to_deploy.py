@@ -5,7 +5,7 @@ from .use_cases import Observer, Translator, Graphics
 from .entities import Point, OccupancyGrid
 from ...core.entities import Point as BgpPoint
 
-RENDER_FPS: int = 10
+RENDER_FPS: int = 30
 
 
 class DynamicGridworldToDeploy:
@@ -35,12 +35,18 @@ class DynamicGridworldToDeploy:
         x_moving_point: int = 0 if distance_vector.x > 0 else int(abs(distance_vector.x)/grid_size)
         y_moving_point: int = 0 if distance_vector.y > 0 else int(abs(distance_vector.y)/grid_size)
         z_moving_point: int = 0 if distance_vector.z > 0 else int(abs(distance_vector.z)/grid_size)
-        self.moving_point = Point(x_moving_point, y_moving_point, z_moving_point)
+        self.moving_point = Point(np.clip(x_moving_point, 0, self.size-1),
+                                  np.clip(y_moving_point, 0, self.size-1),
+                                  np.clip(z_moving_point, 0, self.size-1),)
+
+        # TMP
 
         x_target: int = 0 if distance_vector.x < 0 else int(abs(distance_vector.x)/grid_size)
         y_target: int = 0 if distance_vector.y < 0 else int(abs(distance_vector.y)/grid_size)
         z_target: int = 0 if distance_vector.z < 0 else int(abs(distance_vector.z)/grid_size)
-        self.target = Point(x_target, y_target, z_target)
+        self.target = Point(np.clip(x_target, 0, self.size-1),
+                            np.clip(y_target, 0, self.size-1),
+                            np.clip(z_target, 0, self.size-1),)
 
         # Init occupancy grid
         if map is not None:

@@ -57,11 +57,11 @@ class Manipulator:
             # Render
             if render:
                 self.graphics.render(self.data, point, target, path)
-                self.graphics.update(10)
+                self.graphics.update(30)
 
             angles_path.append(angles)
 
-        self.graphics.close()
+        # self.graphics.close()
 
         return angles_path
 
